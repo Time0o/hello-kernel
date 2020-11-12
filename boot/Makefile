@@ -1,6 +1,6 @@
 # programs
 AS := nasm
-ASFLAGS := -f bin
+ASFLAGS := -f bin -i asm
 
 # OS
 OS = os
@@ -20,8 +20,8 @@ QEMU_COMMON_OPTS := -nographic
 all: $(BOOT_BIN) $(IMGS)
 
 # boot loader
-$(BOOT_BIN): $(BOOT_SRC)
-	$(AS) $(ASFLAGS) $< -o $@
+$(BOOT_BIN): $(wildcard asm/*)
+	$(AS) $(ASFLAGS) $(BOOT_SRC) -o $@
 
 # floppy image
 $(FLOPPY_IMG): $(BOOT_BIN)
