@@ -1,0 +1,5 @@
+boot/out/*
+!boot/out/.gitkeep
+
+boot/imgs/*
+!boot/imgs/.gitkeep
