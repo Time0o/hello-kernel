@@ -1,7 +1,5 @@
 bits 16
 
-[ORG 0x7c00] ; program expects to be loaded at this address
-
 %include "bios_print.asm"
 
 global _start
