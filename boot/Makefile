@@ -12,6 +12,7 @@ OS = os
 
 # bootloader
 BOOT_SRC := $(ASM_DIR)/boot.asm
+BOOT_SRC_PREPROCESSED := $(OUT_DIR)/boot.asm
 BOOT_OBJ := $(OUT_DIR)/boot.o
 BOOT_ELF := $(OUT_DIR)/boot.elf
 BOOT_IMG := $(OUT_DIR)/boot.img
@@ -29,7 +30,10 @@ QEMU_DBG_GDBINIT := gdbinit_real_mode.txt
 all: $(IMGS)
 
 # boot loader
-$(BOOT_ELF): $(BOOT_SRC)
+$(BOOT_SRC_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
+	$(AS) $(ASFLAGS) -E $(BOOT_SRC) | sed 's/^%line.*/\n/g' | cat -s > $@
+
+$(BOOT_ELF): $(BOOT_SRC_PREPROCESSED)
 	$(AS) $(ASFLAGS) -f elf32 -g -F dwarf $< -o $(BOOT_OBJ)
 	ld -Ttext=0x7c00 -melf_i386 $(BOOT_OBJ) -o $@
 
