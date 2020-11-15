@@ -38,7 +38,7 @@ $(BOOT_IMG): $(BOOT_ELF)
 
 # floppy image
 $(FLOPPY_IMG): $(BOOT_IMG)
-	dd if=/dev/zero of=$@ bs=512 count=1000
+	dd if=/dev/zero of=$@ bs=512 count=2880
 	dd if=$< of=$@ bs=512 count=1 conv=notrunc
 
 # phony targets
