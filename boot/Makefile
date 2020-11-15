@@ -1,6 +1,6 @@
 # programs
 AS := nasm
-ASFLAGS := -i asm
+ASFLAGS := -i asm -O0 -Wall -Werror
 
 # directories
 ASM_DIR := asm
