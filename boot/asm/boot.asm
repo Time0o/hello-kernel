@@ -7,6 +7,7 @@ jmp reloc
 %include "bios_print.asm"
 %include "bios_reloc.asm"
 
+%include "toggle_interrupts.asm"
 %include "a20_enable.asm"
 
 reloc:
@@ -16,6 +17,9 @@ reloc:
 _start:
   ; print greeting
   BIOS_PRINT MSG_GREETING
+
+  ; disable all interrupts
+  call disable_interrupts
 
   ; enable a20 line
   call a20_enable
