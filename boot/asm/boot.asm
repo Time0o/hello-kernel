@@ -10,6 +10,8 @@ _start:
   mov ds, ax
 
   ; print greeting
+  cld
+
   BIOS_PRINT MSG_GREETING
 
 loop:
