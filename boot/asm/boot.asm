@@ -1,24 +1,28 @@
 bits 16
 
-%include "bios_print.asm"
-
 global _start
 
+cld
+
+jmp reloc
+
+%include "bios_print.asm"
+%include "bios_reloc.asm"
+
+reloc:
+  ; relocate bootloader
+  BIOS_RELOC
+
 _start:
-  ; zero DS
-  xor ax, ax
-  mov ds, ax
-
   ; print greeting
-  cld
-
   BIOS_PRINT MSG_GREETING
 
-loop:
-  jmp loop
+  ; TODO
 
-  ; constants
-  MSG_GREETING db 'Hello from the bootloader', 0
+boot_error:
+  jmp boot_error
 
-  times 510-($-$$) db 0 ; zero out rest of section
-  dw 0xAA55             ; add boot signature (needed by QEMU)
+%include "constants.asm"
+
+times 510-($-$$) db 0 ; zero out rest of section
+dw BOOT_ID            ; add boot signature (needed by QEMU)
