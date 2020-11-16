@@ -9,6 +9,8 @@ jmp reloc
 %include "bios_print.asm"
 %include "bios_reloc.asm"
 
+%include "a20_enable.asm"
+
 reloc:
   ; relocate bootloader
   BIOS_RELOC
@@ -17,6 +19,11 @@ _start:
   ; print greeting
   BIOS_PRINT MSG_GREETING
 
+  ; enable a20 line
+  call a20_enable
+
+  test ax, ax
+  jz boot_error
   ; TODO
 
 boot_error:
