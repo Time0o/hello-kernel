@@ -2,8 +2,6 @@ bits 16
 
 global _start
 
-cld
-
 jmp reloc
 
 %include "bios_print.asm"
