@@ -21,7 +21,7 @@ bios_reloc:
 
 bios_reloc_failure:
   BIOS_PRINT MSG_RELOC_FAILURE
-  jmp boot_error
+  jmp real_mode_boot_error
 
 bios_reloc_done:
   mov ax, BOOT_SEGMENT

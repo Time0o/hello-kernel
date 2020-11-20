@@ -58,8 +58,7 @@ define boot_qemu_dbg
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1),index=0,$(3) $(QEMU_DBG_OPTS)' \; \
     split-window 'gdb $(2) \
                       -ex "target remote localhost:1234" \
-                      -x $(QEMU_DBG_GDBINIT) \
-                      -ex "break _start" \
+                      -ex "break protected_mode_start" \
                       -ex "continue"' \; \
     select-layout even-vertical
 endef
