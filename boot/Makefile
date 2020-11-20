@@ -5,20 +5,26 @@ ASFLAGS_DBG := -g -F dwarf
 ASFLAGS_WARN := -Wall -Werror
 ASFLAGS := $(ASFLAGS_ARCH) $(ASFLAGS_DBG) $(ASFLAGS_WARN)
 
-CC := gcc
-CFLAGS_ARCH := -m32 -fno-PIC
-CFLAGS_NOSTD := -ffreestanding -nostdinc
-CFLAGS_COMPRESS := -Os -fomit-frame-pointer
-CFLAGS_DBG := -g -gdwarf
-CFLAGS_WARN := -Wall -Werror
-CFLAGS := $(CFLAGS_ARCH) $(CFLAGS_NOSTD) $(CFLAGS_COMPRESS) $(CFLAGS_DBG) $(CFLAGS_WARN)
+CC := g++
+CXXFLAGS_ARCH := -m32 -fno-PIC
+CXXFLAGS_STD := -std=c++11
+CXXFLAGS_RUNTIME := -ffreestanding -fno-rtti -fno-exceptions -fno-threadsafe-statics
+CXXFLAGS_COMPRESS := -Os -fomit-frame-pointer
+CXXFLAGS_DBG := -g -gdwarf
+CXXFLAGS_WARN := -Wall -Werror
+CXXFLAGS := $(CXXFLAGS_ARCH) \
+            $(CXXFLAGS_STD) \
+            $(CXXFLAGS_RUNTIME) \
+            $(CXXFLAGS_COMPRESS) \
+            $(CXXFLAGS_DBG) \
+            $(CXXFLAGS_WARN)
 
 LD := ld
 LDFLAGS := -Ttext=0x7C00 -melf_i386
 
 # directories
 ASM_DIR := asm
-C_DIR := c
+CPP_DIR := cpp
 OUT_DIR := out
 IMG_DIR := imgs
 
@@ -29,8 +35,8 @@ OS = os
 BOOT_ASM := $(ASM_DIR)/boot.asm
 BOOT_ASM_PREPROCESSED := $(OUT_DIR)/boot.asm
 BOOT_ASM_OBJ := $(OUT_DIR)/boot_asm.o
-BOOT_C := $(C_DIR)/boot.c
-BOOT_C_OBJ := $(OUT_DIR)/boot_c.o
+BOOT_CPP := $(CPP_DIR)/boot.cpp
+BOOT_CPP_OBJ := $(OUT_DIR)/boot_cpp.o
 BOOT_ELF := $(OUT_DIR)/boot.elf
 BOOT_IMG := $(OUT_DIR)/boot.img
 
@@ -53,10 +59,10 @@ $(BOOT_ASM_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
 $(BOOT_ASM_OBJ): $(BOOT_ASM_PREPROCESSED)
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(BOOT_C_OBJ): $(BOOT_C)
-	$(CC) $(CFLAGS) $< -c -o $@
+$(BOOT_CPP_OBJ): $(BOOT_CPP)
+	$(CC) $(CXXFLAGS) -c $< -o $@
 
-$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_C_OBJ)
+$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 $(BOOT_IMG): $(BOOT_ELF)
