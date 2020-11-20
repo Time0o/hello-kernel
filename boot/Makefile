@@ -35,7 +35,7 @@ $(BOOT_SRC_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
 
 $(BOOT_ELF): $(BOOT_SRC_PREPROCESSED)
 	$(AS) $(ASFLAGS) -f elf32 -g -F dwarf $< -o $(BOOT_OBJ)
-	ld -Ttext=0x0000 -melf_i386 $(BOOT_OBJ) -o $@
+	ld -Ttext=0x7C00 -melf_i386 $(BOOT_OBJ) -o $@
 
 $(BOOT_IMG): $(BOOT_ELF)
 	objcopy -O binary $< $@
@@ -59,7 +59,6 @@ define boot_qemu_dbg
     split-window 'gdb $(2) \
                       -ex "target remote localhost:1234" \
                       -x $(QEMU_DBG_GDBINIT) \
-                      -ex "add-symbol-file $(BOOT_ELF) 0x600" \
                       -ex "break _start" \
                       -ex "continue"' \; \
     select-layout even-vertical

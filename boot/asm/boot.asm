@@ -2,7 +2,10 @@ bits 16
 
 global _start
 
-jmp reloc
+jmp _start
+
+; TODO relocate bootloader
+;jmp reloc
 
 %include "bios_print.asm"
 %include "bios_reloc.asm"
@@ -10,11 +13,17 @@ jmp reloc
 %include "toggle_interrupts.asm"
 %include "a20_enable.asm"
 
-reloc:
-  ; relocate bootloader
-  BIOS_RELOC
+; TODO relocate bootloader
+;reloc:
+;  BIOS_RELOC
 
 _start:
+  ; set up segment registers
+  xor ax, ax
+  mov ds, ax
+  mov ss, ax
+  mov sp, BOOT_ORG
+
   ; print greeting
   BIOS_PRINT MSG_GREETING
 
