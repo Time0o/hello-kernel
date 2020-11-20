@@ -1,9 +1,24 @@
 # programs
 AS := nasm
-ASFLAGS := -i asm -O0 -Wall -Werror
+ASFLAGS_ARCH := -f elf32
+ASFLAGS_DBG := -g -F dwarf
+ASFLAGS_WARN := -Wall -Werror
+ASFLAGS := $(ASFLAGS_ARCH) $(ASFLAGS_DBG) $(ASFLAGS_WARN)
+
+CC := gcc
+CFLAGS_ARCH := -m32 -fno-PIC
+CFLAGS_NOSTD := -ffreestanding -nostdinc
+CFLAGS_COMPRESS := -Os -fomit-frame-pointer
+CFLAGS_DBG := -g -gdwarf
+CFLAGS_WARN := -Wall -Werror
+CFLAGS := $(CFLAGS_ARCH) $(CFLAGS_NOSTD) $(CFLAGS_COMPRESS) $(CFLAGS_DBG) $(CFLAGS_WARN)
+
+LD := ld
+LDFLAGS := -Ttext=0x7C00 -melf_i386
 
 # directories
 ASM_DIR := asm
+C_DIR := c
 OUT_DIR := out
 IMG_DIR := imgs
 
@@ -11,9 +26,11 @@ IMG_DIR := imgs
 OS = os
 
 # bootloader
-BOOT_SRC := $(ASM_DIR)/boot.asm
-BOOT_SRC_PREPROCESSED := $(OUT_DIR)/boot.asm
-BOOT_OBJ := $(OUT_DIR)/boot.o
+BOOT_ASM := $(ASM_DIR)/boot.asm
+BOOT_ASM_PREPROCESSED := $(OUT_DIR)/boot.asm
+BOOT_ASM_OBJ := $(OUT_DIR)/boot_asm.o
+BOOT_C := $(C_DIR)/boot.c
+BOOT_C_OBJ := $(OUT_DIR)/boot_c.o
 BOOT_ELF := $(OUT_DIR)/boot.elf
 BOOT_IMG := $(OUT_DIR)/boot.img
 
@@ -30,12 +47,17 @@ QEMU_DBG_GDBINIT := gdbinit_real_mode.txt
 all: $(IMGS)
 
 # boot loader
-$(BOOT_SRC_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
-	$(AS) $(ASFLAGS) -E $(BOOT_SRC) | sed 's/^%line.*/\n/g' | cat -s > $@
+$(BOOT_ASM_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
+	$(AS) -I $(ASM_DIR) -E $(BOOT_ASM) | sed 's/^%line.*/\n/g' | cat -s > $@
 
-$(BOOT_ELF): $(BOOT_SRC_PREPROCESSED)
-	$(AS) $(ASFLAGS) -f elf32 -g -F dwarf $< -o $(BOOT_OBJ)
-	ld -Ttext=0x7C00 -melf_i386 $(BOOT_OBJ) -o $@
+$(BOOT_ASM_OBJ): $(BOOT_ASM_PREPROCESSED)
+	$(AS) $(ASFLAGS) $< -o $@
+
+$(BOOT_C_OBJ): $(BOOT_C)
+	$(CC) $(CFLAGS) $< -c -o $@
+
+$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_C_OBJ)
+	$(LD) $(LDFLAGS) $^ -o $@
 
 $(BOOT_IMG): $(BOOT_ELF)
 	objcopy -O binary $< $@

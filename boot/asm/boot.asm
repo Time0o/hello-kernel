@@ -1,3 +1,5 @@
+extern bootloader_start
+
 global _start
 
 ; real mode code
@@ -60,7 +62,7 @@ protected_mode_start:
   mov ss, ax
   mov esp, BOOT_ORG
 
-  hlt ; TODO
+  call bootloader_start
 
 %include "constants.asm"
 
