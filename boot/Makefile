@@ -41,8 +41,10 @@ BOOT_ELF := $(OUT_DIR)/boot.elf
 BOOT_IMG := $(OUT_DIR)/boot.img
 
 # images
-FLOPPY_IMG := $(IMG_DIR)/$(OS).flp
-IMGS := $(BOOT_IMG) $(FLOPPY_IMG)
+DISK_IMG := $(IMG_DIR)/$(OS).img
+DISK_IMG_BS := 512
+DISK_IMG_COUNT := 2048
+IMGS := $(BOOT_IMG) $(DISK_IMG)
 
 # emulator
 QEMU := qemu-system-i386
@@ -68,13 +70,13 @@ $(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ)
 $(BOOT_IMG): $(BOOT_ELF)
 	objcopy -O binary $< $@
 
-# floppy image
-$(FLOPPY_IMG): $(BOOT_IMG)
-	dd if=/dev/zero of=$@ bs=512 count=2880
+# disk image
+$(DISK_IMG): $(BOOT_IMG)
+	dd if=/dev/zero of=$@ bs=$(DISK_IMG_BS) count=$(DISK_IMG_COUNT)
 	dd if=$< of=$@ bs=512 count=1 conv=notrunc
 
 # phony targets
-.PHONY: clean, boot_floppy, boot_floppy_dbg
+.PHONY: clean, boot, boot_dbg
 
 clean:
 	rm -f $(OUT_DIR)/* $(IMG_DIR)/*
@@ -83,7 +85,7 @@ boot_qemu = $(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1),index=0,$(2)
 
 define boot_qemu_dbg
   tmux \
-    new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1),index=0,$(3) $(QEMU_DBG_OPTS)' \; \
+    new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
     split-window 'gdb $(2) \
                       -ex "target remote localhost:1234" \
                       -ex "break bootloader_start" \
@@ -91,8 +93,8 @@ define boot_qemu_dbg
     select-layout even-vertical
 endef
 
-boot_floppy:
-	$(call boot_qemu,$(FLOPPY_IMG),if=floppy)
+boot:
+	$(call boot_qemu,$(DISK_IMG))
 
-boot_floppy_dbg:
-	$(call boot_qemu_dbg,$(FLOPPY_IMG),$(BOOT_ELF),if=floppy)
+boot_dbg:
+	$(call boot_qemu_dbg,$(DISK_IMG),$(BOOT_ELF))
