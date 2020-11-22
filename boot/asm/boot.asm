@@ -67,6 +67,3 @@ protected_mode_start:
 %include "constants.asm"
 
 GDT
-
-times 510-($-$$) db 0 ; zero out rest of section
-dw BOOT_ID            ; add boot signature (needed by QEMU)

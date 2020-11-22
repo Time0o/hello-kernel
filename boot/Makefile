@@ -20,11 +20,13 @@ CXXFLAGS := $(CXXFLAGS_ARCH) \
             $(CXXFLAGS_WARN)
 
 LD := ld
-LDFLAGS := -Ttext=0x7C00 -melf_i386
+LDFLAGS := -melf_i386
 
 # directories
 ASM_DIR := asm
 CPP_DIR := cpp
+INC_DIR := inc
+LNK_DIR := lnk
 OUT_DIR := out
 IMG_DIR := imgs
 
@@ -37,6 +39,8 @@ BOOT_ASM_PREPROCESSED := $(OUT_DIR)/boot.asm
 BOOT_ASM_OBJ := $(OUT_DIR)/boot_asm.o
 BOOT_CPP := $(CPP_DIR)/boot.cpp
 BOOT_CPP_OBJ := $(OUT_DIR)/boot_cpp.o
+BOOT_LNK := $(LNK_DIR)/boot.ld
+BOOT_LNK_PREPROCESSED := $(OUT_DIR)/boot.ld
 BOOT_ELF := $(OUT_DIR)/boot.elf
 BOOT_IMG := $(OUT_DIR)/boot.img
 
@@ -54,7 +58,7 @@ QEMU_DBG_GDBINIT := gdbinit_real_mode.txt
 
 all: $(IMGS)
 
-# boot loader
+# objects
 $(BOOT_ASM_PREPROCESSED): $(wildcard $(ASM_DIR)/*.asm)
 	$(AS) -I $(ASM_DIR) -E $(BOOT_ASM) | sed 's/^%line.*/\n/g' | cat -s > $@
 
@@ -64,16 +68,30 @@ $(BOOT_ASM_OBJ): $(BOOT_ASM_PREPROCESSED)
 $(BOOT_CPP_OBJ): $(BOOT_CPP)
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ)
-	$(LD) $(LDFLAGS) $^ -o $@
+# linker script
+$(BOOT_LNK_PREPROCESSED): $(BOOT_LNK)
+	$(CC) -DBOOT_ASM_OBJ=$(BOOT_ASM_OBJ) -I $(INC_DIR) -E -x c $< | grep -v "^#" > $@
+
+# ELF
+$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ) $(BOOT_LNK_PREPROCESSED)
+	$(LD) $(LDFLAGS) -T$(BOOT_LNK_PREPROCESSED) $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ) -o $@
+
+# images
+define assert_boot_size
+  FSIZE=$$(stat -c %s $(1)); \
+  if (( $$(stat -c %s $(1)) > $(DISK_IMG_BS) )); then \
+    echo "bootloader image too large" >&2; \
+    exit 1; \
+  fi;
+endef
 
 $(BOOT_IMG): $(BOOT_ELF)
 	objcopy -O binary $< $@
+	$(call assert_boot_size,$@)
 
-# disk image
 $(DISK_IMG): $(BOOT_IMG)
 	dd if=/dev/zero of=$@ bs=$(DISK_IMG_BS) count=$(DISK_IMG_COUNT)
-	dd if=$< of=$@ bs=512 count=1 conv=notrunc
+	dd if=$< of=$@ bs=$(DISK_IMG_BS) count=1 conv=notrunc
 
 # phony targets
 .PHONY: clean, boot, boot_dbg
