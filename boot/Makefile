@@ -107,11 +107,13 @@ boot_qemu = $(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1),index=0,$(2)
 define boot_qemu_dbg
   tmux \
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
-    split-window 'gdb $(2) \
+    split-window 'gdb -q $(2) \
                       -ex "target remote localhost:1234" \
                       -ex "break bootloader_start" \
-                      -ex "continue"' \; \
-    select-layout even-vertical
+                      -ex "continue" \
+                      -ex "shell clear" \
+                      -ex "layout src"' \; \
+    select-layout even-horizontal
 endef
 
 boot:
