@@ -26,8 +26,14 @@ _start:
   ; set up segment registers
   xor ax, ax
   mov ds, ax
-  mov ss, ax
-  mov sp, BOOT_ORG
+  mov es, ax
+
+  mov bx, BOOT_STACK_SEGMENT
+  mov ss, bx
+  mov sp, ax
+
+  ; clear direction flag
+  cld
 
   ; print greeting
   BIOS_PRINT MSG_GREETING
@@ -59,8 +65,9 @@ protected_mode_start:
   mov es, ax
   mov fs, ax
   mov gs, ax
+
   mov ss, ax
-  mov esp, BOOT_ORG
+  mov esp, BOOT_STACK_TOP
 
   call bootloader_start
 

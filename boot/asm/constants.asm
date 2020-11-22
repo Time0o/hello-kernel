@@ -1,7 +1,8 @@
 %define KB(n) (n * 1024)
 %define MB(n) (n * 1024 * 1024)
 
-BOOT_ORG equ 0x7C00
+BOOT_STACK_TOP equ 0x80000
+BOOT_STACK_SEGMENT equ (BOOT_STACK_TOP >> 4)
 
 BOOT_ID equ 0xAA55
 BOOT_ID_OFFS equ 0x7FE
