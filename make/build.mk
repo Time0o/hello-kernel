@@ -24,3 +24,12 @@ LDFLAGS := -melf_i386
 ASPPFLAGS := -I $(ASM_DIR)
 CPPFLAGS := -I $(INC_DIR)
 LDPPFLAGS := -I $(INC_DIR)
+
+# utility functions
+define preprocess_asm
+  $(AS) $(ASPPFLAGS) -E $(1) | sed 's/^%line.*/\n/g' | cat -s > $(2)
+endef
+
+define preprocess_linker_script
+  $(CC) $(LDPPFLAGS) -E -x c $(1) | grep -v "^#" > $(2)
+endef

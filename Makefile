@@ -5,17 +5,21 @@ include $(MAKE_DIR)/project.mk
 include $(MAKE_DIR)/disk.mk
 
 # targets
-all: boot
+all: boot kern
 
 # disk image
-.PHONY: boot
+.PHONY: boot kern
 
 boot:
 	make -C $(BOOT_DIR)
 
-disk: boot
+kern:
+	make -C $(KERN_DIR)
+
+disk: boot kern
 	dd if=/dev/zero of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) count=$(DISK_SECT_COUNT) 2> /dev/null
 	dd if=$(BOOT_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) count=1 conv=notrunc 2>/dev/null
+	dd if=$(KERN_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) seek=1 conv=notrunc 2>/dev/null
 
 # qemu
 QEMU := qemu-system-i386
@@ -49,4 +53,5 @@ qemu_dbg:
 
 clean:
 	make -C boot clean
+	make -C kern clean
 	rm -f $(DISK_IMG)
