@@ -21,6 +21,16 @@ SECTIONS
       SHORT(BOOT_SIG);
   }
 
+  .bss : SUBALIGN(4) {
+    __bss_start = .;
+    *(.COMMON);
+    *(.bss)
+    . = ALIGN(4);
+    __bss_end = .;
+  }
+
+  __bss_size = SIZEOF(.bss);
+
   /DISCARD/ : {
       *(.eh_frame);
       *(.comment);

@@ -1,4 +1,4 @@
-extern bootloader_start
+extern __bss_start, __bss_size, bootloader_start
 
 global _start
 
@@ -34,6 +34,11 @@ _start:
 
   ; clear direction flag
   cld
+
+  ; zero BSS
+  mov cx, __bss_size
+  mov di, __bss_start
+  rep stosb
 
   ; print greeting
   BIOS_PRINT MSG_GREETING
