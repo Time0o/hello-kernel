@@ -28,9 +28,16 @@ QEMU_DBG_OPTS := -S -s
 
 .PHONY: qemu qemu_dbg
 
-boot_qemu = $(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1)
+qemu_boot = $(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1)
 
-define boot_qemu_dbg
+define qemu_check_disk
+  if [ ! -f "$(DISK_IMG)" ]; then \
+    echo "run 'disk' target first" >&2; \
+    exit 1; \
+  fi;
+endef
+
+define qemu_dbg_boot
   tmux \
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
     split-window 'gdb -q $(2) \
@@ -43,10 +50,12 @@ define boot_qemu_dbg
 endef
 
 qemu:
-	$(call boot_qemu,$(DISK_IMG))
+	@$(call qemu_check_disk)
+	$(call qemu_boot,$(DISK_IMG))
 
 qemu_dbg:
-	$(call boot_qemu_dbg,$(DISK_IMG),$(BOOT_ELF))
+	@$(call qemu_check_disk)
+	$(call qemu_dbg_boot,$(DISK_IMG),$(BOOT_ELF))
 
 # clean
 .PHONY: clean
