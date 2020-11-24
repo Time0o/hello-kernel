@@ -1,8 +1,22 @@
 # pragma once
 
-#define BOOT_ORG 0x7C00
+#define KB(n) (n * 1024)
+#define MB(n) (n * KB(1024))
+
+#define BOOT_ORG_SEG 0x0000
+#define BOOT_ORG_OFFS 0x7C00
+#define BOOT_RELOC_SEG 0x60
+#define BOOT_RELOC_OFFS 1
+
 #define BOOT_SIG 0xAA55
+#define BOOT_SIG_SEG 0x0000
 #define BOOT_SIG_OFFS 0x7DFE
+#define BOOT_SIG_A20_SEG 0xFFFF
+#define BOOT_SIG_A20_OFFS (BOOT_SIG_OFFS + MB(1) - (BOOT_SIG_A20_SEG << 4))
+
+#define BOOT_STACK_BOTTOM BOOT_ORG_OFFS + DISK_SECT_SIZE
+#define BOOT_STACK_TOP 0x80000
+#define BOOT_STACK_SEG (BOOT_STACK_TOP >> 4)
 
 #define KERN_LOAD_ADDR 0x100000
 #define KERN_LINK_ADDR 0xf0100000

@@ -8,37 +8,34 @@ include $(MAKE_DIR)/disk.mk
 # files
 BOOT_BASENAME := boot
 
-BOOT_ASM       := $(ASM_DIR)/$(BOOT_BASENAME).asm
-BOOT_ASM_FILES := $(wildcard $(ASM_DIR)/*.asm)
-BOOT_ASM_PP    := $(OUT_DIR)/$(BOOT_BASENAME).asm
-BOOT_ASM_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_asm.o
+CFG            := $(INC_DIR)/config.hpp
+BOOT_ASM       := $(ASM_DIR)/$(BOOT_BASENAME).S
+BOOT_ASM_FILES := $(wildcard $(ASM_DIR)/*.S)
+BOOT_ASM_PP    := $(OUT_DIR)/$(BOOT_BASENAME).S
+BOOT_ASM_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_S.o
 BOOT_CXX       := $(CXX_DIR)/$(BOOT_BASENAME).cpp
 BOOT_CXX_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_cpp.o
 BOOT_LNK       := $(LNK_DIR)/$(BOOT_BASENAME).ld
 BOOT_LNK_PP    := $(OUT_DIR)/$(BOOT_BASENAME).ld
 
 # flags
+CPPFLAGS += -DBOOT_ASM_OBJ=$(BOOT_ASM_OBJ) -DBOOT_CXX_OBJ=$(BOOT_CXX_OBJ)
 CXXFLAGS += -Os -fomit-frame-pointer
-
-LDPPFLAGS += -DBOOT_ASM_OBJ=$(BOOT_ASM_OBJ)
-LDFLAGS += -T$(BOOT_LNK_PP)
+LDFLAGS  += -T$(BOOT_LNK_PP)
 
 # targets
 all: $(BOOT_IMG)
 
 # objects
-$(BOOT_ASM_PP): $(BOOT_ASM_FILES)
-	$(call preprocess_asm,$(BOOT_ASM),$@)
+$(BOOT_ASM_OBJ): $(BOOT_ASM_FILES) $(CFG)
+	$(AS) $(ASFLAGS) -c $(BOOT_ASM) -o $@
 
-$(BOOT_ASM_OBJ): $(BOOT_ASM_PP)
-	$(AS) $(ASFLAGS) $< -o $@
-
-$(BOOT_CXX_OBJ): $(BOOT_CXX)
+$(BOOT_CXX_OBJ): $(BOOT_CXX) $(CFG)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # linker script
-$(BOOT_LNK_PP): $(BOOT_LNK)
-	$(call preprocess_linker_script,$<,$@)
+$(BOOT_LNK_PP): $(BOOT_LNK) $(CFG)
+	$(call ldpp,$<,$@)
 
 # ELF
 $(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CXX_OBJ) $(BOOT_LNK_PP)

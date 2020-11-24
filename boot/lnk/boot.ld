@@ -6,10 +6,10 @@ ENTRY(_start);
 
 SECTIONS
 {
-  . = BOOT_ORG;
+  . = BOOT_ORG_OFFS;
   .text : {
       BOOT_ASM_OBJ(.text);
-      *(.text);
+      BOOT_CXX_OBJ(.text);
   }
 
   .data : SUBALIGN(2) {

@@ -37,12 +37,15 @@ define qemu_check_disk
   fi;
 endef
 
+QEMU_START ?= bootloader_start
+
 define qemu_dbg_boot
   tmux \
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
     split-window 'gdb -q $(2) \
                       -ex "target remote localhost:1234" \
-                      -ex "break bootloader_start" \
+                      -x "$(QEMU_INIT_FILE)" \
+                      -ex "break $(QEMU_START)" \
                       -ex "continue" \
                       -ex "shell clear" \
                       -ex "layout src"' \; \

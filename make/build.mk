@@ -1,36 +1,31 @@
-# assembler
-AS := nasm
+# common
+GCCFLAGS_COMMON := -m32 -fno-PIC
+GCCFLAGS_COMMON += -g -gdwarf
+GCCFLAGS_COMMON += -Wall -Werror
 
-ASFLAGS += -f elf32
-ASFLAGS += -g -F dwarf
-ASFLAGS += -Wall -Werror
+# preprocessor
+CPPFLAGS = -I$(INC_DIR)
+
+# assembler
+AS := gcc
+
+ASFLAGS = $(GCCFLAGS_COMMON)
+ASFLAGS += $(CPPFLAGS)
 
 # compiler
 CC := gcc
 CXX := g++
 
-CXXFLAGS += -I $(INC_DIR)
-CXXFLAGS += -m32 -fno-PIC
+CXXFLAGS = $(GCCFLAGS_COMMON)
+CXXFLAGS += $(CPPFLAGS)
 CXXFLAGS += -std=c++11
 CXXFLAGS += -ffreestanding -fno-rtti -fno-exceptions -fno-threadsafe-statics
-CXXFLAGS += -g -gdwarf
-CXXFLAGS += -Wall -Werror
 
 # linker
 LD := ld
 
-LDFLAGS := -melf_i386
-
-# preprocessor
-ASPPFLAGS := -I $(ASM_DIR)
-CPPFLAGS := -I $(INC_DIR)
-LDPPFLAGS := -I $(INC_DIR)
-
-# utility functions
-define preprocess_asm
-  $(AS) $(ASPPFLAGS) -E $(1) | sed 's/^%line.*/\n/g' | cat -s > $(2)
+define ldpp
+  $(CC) $(CPPFLAGS) -E -x c $(1) | grep -v "^#" > $(2)
 endef
 
-define preprocess_linker_script
-  $(CC) $(LDPPFLAGS) -E -x c $(1) | grep -v "^#" > $(2)
-endef
+LDFLAGS = -melf_i386

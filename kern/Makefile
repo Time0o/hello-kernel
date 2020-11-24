@@ -23,7 +23,7 @@ $(OUT_DIR)/%.o: $(CXX_DIR)/%.cpp
 
 # linker script
 $(KERN_LNK_PP): $(KERN_LNK)
-	$(call preprocess_linker_script,$<,$@)
+	$(call ldpp,$<,$@)
 
 # ELF
 $(KERN_ELF): $(KERN_OBJS) $(KERN_LNK_PP)
