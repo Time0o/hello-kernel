@@ -18,8 +18,8 @@ kern:
 
 disk: boot kern
 	dd if=/dev/zero of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) count=$(DISK_SECT_COUNT) 2> /dev/null
-	dd if=$(BOOT_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) count=1 conv=notrunc 2>/dev/null
-	dd if=$(KERN_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) seek=1 conv=notrunc 2>/dev/null
+	dd if=$(BOOT_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) count=$(BOOT_SECT_COUNT)1 conv=notrunc 2>/dev/null
+	dd if=$(KERN_IMG) of=$(DISK_IMG) bs=$(DISK_SECT_SIZE) seek=$(BOOT_SECT_COUNT) conv=notrunc 2>/dev/null
 
 # qemu
 QEMU := qemu-system-i386
@@ -37,15 +37,15 @@ define qemu_check_disk
   fi;
 endef
 
-QEMU_START ?= bootloader_start
-
 define qemu_dbg_boot
   tmux \
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
-    split-window 'gdb -q $(2) \
+    split-window 'gdb -q $(2) $(BOOT_RELOC_ADDR) \
                       -ex "target remote localhost:1234" \
-                      -x "$(QEMU_INIT_FILE)" \
-                      -ex "break $(QEMU_START)" \
+                      -ex "set confirm off" \
+                      -ex "add-symbol-file $(2) $(BOOT_RELOC_ADDR)" \
+                      -ex "set confirm on" \
+                      -ex "break bootloader_start" \
                       -ex "continue" \
                       -ex "shell clear" \
                       -ex "layout src"' \; \

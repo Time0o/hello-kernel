@@ -44,7 +44,7 @@ $(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CXX_OBJ) $(BOOT_LNK_PP)
 # image
 define assert_boot_size
   FSIZE=$$(stat -c %s $(1)); \
-  if (( $$(stat -c %s $(1)) > $(DISK_SECT_SIZE) )); then \
+  if (( $$(stat -c %s $(1)) > $(BOOT_SECT_COUNT) * $(DISK_SECT_SIZE) )); then \
     echo "bootloader image too large" >&2; \
     exit 1; \
   fi;

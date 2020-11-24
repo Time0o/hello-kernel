@@ -10,16 +10,36 @@ jmp _start
 #include "toggle_interrupts.S"
 #include "a20_enable.S"
 #include "gdt.S"
-#include "protected_mode_enable.S"
 
 _start:
+  // relocate and load remaining bootloader code
+  #define BIOS_INT_DISK 0x13
+  #define BIOS_INT_DISK_READ_SECTORS 2
+
+  mov $BOOT_RELOC_ADDR >> 4, %ax
+  mov %ax, %es
+  xor %bx, %bx
+
+  mov $BIOS_INT_DISK_READ_SECTORS, %ah
+  mov $BOOT_SECT_COUNT, %al
+  mov $0, %ch
+  mov $1, %cl
+  xor %dh, %dh
+
+  int $BIOS_INT_DISK
+
+reloc_jmp:
+  jmp $0x0, $reloc_done
+
+reloc_done:
   // set up segment registers
   xor %ax, %ax
   mov %ax, %ds
   mov %ax, %es
 
-  mov $BOOT_STACK_SEG, %bx
-  mov %bx, %ss
+  // set up stack
+  xor %ax, %ax
+  mov %ax, %ss
   mov %ax, %sp
 
   // clear direction flag
@@ -40,7 +60,12 @@ _start:
   jz real_mode_boot_error
 
   // switch to protected mode
-  call protected_mode_enable
+  #define CR0_PROTECTED_MODE_ENABLE_MASK 0x1
+
+  lgdt gdt_descriptor
+  mov %cr0, %eax
+  or $CR0_PROTECTED_MODE_ENABLE_MASK, %al
+  mov %eax, %cr0
 
   jmp $GDT_SELECTOR_KERNEL_CODE, $protected_mode_start
 

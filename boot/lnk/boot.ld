@@ -6,19 +6,16 @@ ENTRY(_start);
 
 SECTIONS
 {
-  . = BOOT_ORG_OFFS;
+  . = BOOT_RELOC_ADDR;
   .text : {
-      BOOT_ASM_OBJ(.text);
-      BOOT_CXX_OBJ(.text);
+    BOOT_ASM_OBJ(.text);
+    . = DISK_SECT_SIZE - 2;
+    SHORT(BOOT_SIG);
   }
 
   .data : SUBALIGN(2) {
       *(.data);
       *(.rodata*);
-  }
-
-  .sig BOOT_SIG_OFFS : {
-      SHORT(BOOT_SIG);
   }
 
   .bss : SUBALIGN(4) {
