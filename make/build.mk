@@ -6,7 +6,8 @@ ASFLAGS += -g -F dwarf
 ASFLAGS += -Wall -Werror
 
 # compiler
-CC := g++
+CC := gcc
+CXX := g++
 
 CXXFLAGS += -I $(INC_DIR)
 CXXFLAGS += -m32 -fno-PIC

@@ -12,8 +12,8 @@ BOOT_ASM       := $(ASM_DIR)/$(BOOT_BASENAME).asm
 BOOT_ASM_FILES := $(wildcard $(ASM_DIR)/*.asm)
 BOOT_ASM_PP    := $(OUT_DIR)/$(BOOT_BASENAME).asm
 BOOT_ASM_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_asm.o
-BOOT_CPP       := $(CPP_DIR)/$(BOOT_BASENAME).cpp
-BOOT_CPP_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_cpp.o
+BOOT_CXX       := $(CXX_DIR)/$(BOOT_BASENAME).cpp
+BOOT_CXX_OBJ   := $(OUT_DIR)/$(BOOT_BASENAME)_cpp.o
 BOOT_LNK       := $(LNK_DIR)/$(BOOT_BASENAME).ld
 BOOT_LNK_PP    := $(OUT_DIR)/$(BOOT_BASENAME).ld
 
@@ -33,16 +33,16 @@ $(BOOT_ASM_PP): $(BOOT_ASM_FILES)
 $(BOOT_ASM_OBJ): $(BOOT_ASM_PP)
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(BOOT_CPP_OBJ): $(BOOT_CPP)
-	$(CC) $(CXXFLAGS) -c $< -o $@
+$(BOOT_CXX_OBJ): $(BOOT_CXX)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # linker script
 $(BOOT_LNK_PP): $(BOOT_LNK)
 	$(call preprocess_linker_script,$<,$@)
 
 # ELF
-$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ) $(BOOT_LNK_PP)
-	$(LD) $(LDFLAGS) $(BOOT_ASM_OBJ) $(BOOT_CPP_OBJ) -o $@
+$(BOOT_ELF): $(BOOT_ASM_OBJ) $(BOOT_CXX_OBJ) $(BOOT_LNK_PP)
+	$(LD) $(LDFLAGS) $(BOOT_ASM_OBJ) $(BOOT_CXX_OBJ) -o $@
 
 # image
 define assert_boot_size

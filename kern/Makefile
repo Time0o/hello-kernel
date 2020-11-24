@@ -7,7 +7,7 @@ include $(MAKE_DIR)/build.mk
 # files
 KERN_BASENAME := kern
 
-KERN_OBJS   := $(patsubst $(CPP_DIR)/%.cpp,$(OUT_DIR)/%.o,$(wildcard $(CPP_DIR)/*.cpp))
+KERN_OBJS   := $(patsubst $(CXX_DIR)/%.cpp,$(OUT_DIR)/%.o,$(wildcard $(CXX_DIR)/*.cpp))
 KERN_LNK    := $(LNK_DIR)/$(KERN_BASENAME).ld
 KERN_LNK_PP := $(OUT_DIR)/$(KERN_BASENAME).ld
 
@@ -18,8 +18,8 @@ LDFLAGS += -T$(KERN_LNK_PP)
 all: $(KERN_IMG)
 
 # objects
-$(OUT_DIR)/%.o: $(CPP_DIR)/%.cpp
-	$(CC) $(CXXFLAGS) -c $< -o $@
+$(OUT_DIR)/%.o: $(CXX_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # linker script
 $(KERN_LNK_PP): $(KERN_LNK)

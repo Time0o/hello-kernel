@@ -7,7 +7,7 @@ IMG_DIR := $(ROOT_DIR)/img
 
 # subdiretory structure
 ASM_DIR := asm
-CPP_DIR := cpp
+CXX_DIR := cpp
 LNK_DIR := lnk
 OUT_DIR := out
 
