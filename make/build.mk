@@ -1,6 +1,6 @@
 # common
 GCCFLAGS_COMMON := -m32 -fno-PIC
-GCCFLAGS_COMMON += -g -gdwarf
+GCCFLAGS_COMMON += -g
 GCCFLAGS_COMMON += -Wall -Werror
 
 # preprocessor

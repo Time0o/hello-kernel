@@ -20,7 +20,7 @@ BOOT_LNK_PP    := $(OUT_DIR)/$(BOOT_BASENAME).ld
 
 # flags
 CPPFLAGS += -DBOOT_ASM_OBJ=$(BOOT_ASM_OBJ) -DBOOT_CXX_OBJ=$(BOOT_CXX_OBJ)
-CXXFLAGS += -Os -fomit-frame-pointer
+CXXFLAGS += -Os
 LDFLAGS  += -T$(BOOT_LNK_PP)
 
 # targets
