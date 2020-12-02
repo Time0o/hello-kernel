@@ -14,8 +14,8 @@ SECTIONS
   }
 
   .data : SUBALIGN(2) {
-      *(.data);
-      *(.rodata*);
+    *(.data);
+    *(.rodata*);
   }
 
   .bss : SUBALIGN(4) {
@@ -29,7 +29,7 @@ SECTIONS
   __bss_size = SIZEOF(.bss);
 
   /DISCARD/ : {
-      *(.eh_frame);
-      *(.comment);
+    *(.eh_frame);
+    *(.comment);
   }
 }

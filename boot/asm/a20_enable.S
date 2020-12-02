@@ -1,10 +1,11 @@
 #include "a20_is_enabled.S"
 #include "a20_enable_bios.S"
 
-#define CHECK_A20_ENABLED \
-  call a20_is_enabled; \
-  test %ax, %ax; \
+.macro CHECK_A20_ENABLED
+  call a20_is_enabled
+  test %ax, %ax
   jnz a20_enable_success
+.endm
 
 a20_enable:
   CHECK_A20_ENABLED
