@@ -41,6 +41,7 @@ define qemu_dbg_boot
   tmux \
     new-session '$(QEMU) $(QEMU_OPTS) -drive format=raw,file=$(1) $(QEMU_DBG_OPTS)' \; \
     split-window 'gdb -q $(2) $(BOOT_RELOC_ADDR) \
+                      -ex "set arch i386" \
                       -ex "target remote localhost:1234" \
                       -ex "set confirm off" \
                       -ex "add-symbol-file $(2) $(BOOT_RELOC_ADDR)" \
