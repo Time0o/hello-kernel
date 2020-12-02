@@ -11,6 +11,7 @@ SECTIONS
     BOOT_ASM_OBJ(.text);
     . = DISK_SECT_SIZE - 2;
     SHORT(BOOT_SIG);
+    *(.text);
   }
 
   .data : SUBALIGN(2) {

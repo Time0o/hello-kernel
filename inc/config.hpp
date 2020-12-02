@@ -3,6 +3,8 @@
 #define KB(n) (n * 1024)
 #define MB(n) (n * KB(1024))
 
+#define PAGE_SIZE (DISK_SECT_SIZE << 3)
+
 #define BOOT_SIG 0xAA55
 #define BOOT_SIG_SEG 0x0000
 #define BOOT_SIG_OFFS 0x7DFE

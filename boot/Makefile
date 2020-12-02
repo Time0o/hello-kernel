@@ -20,7 +20,7 @@ BOOT_LNK_PP    := $(OUT_DIR)/$(BOOT_BASENAME).ld
 
 # flags
 CPPFLAGS += -DBOOT_ASM_OBJ=$(BOOT_ASM_OBJ) -DBOOT_CXX_OBJ=$(BOOT_CXX_OBJ)
-CXXFLAGS += -Os
+CXXFLAGS += -O0
 LDFLAGS  += -T$(BOOT_LNK_PP)
 
 # targets
@@ -30,7 +30,7 @@ all: $(BOOT_IMG)
 $(BOOT_ASM_OBJ): $(BOOT_ASM_FILES) $(CFG)
 	$(AS) $(ASFLAGS) -c $(BOOT_ASM) -o $@
 
-$(BOOT_CXX_OBJ): $(BOOT_CXX) $(CFG)
+$(BOOT_CXX_OBJ): $(BOOT_CXX) $(wildcard $(INC_DIR)/*.hpp)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # linker script
