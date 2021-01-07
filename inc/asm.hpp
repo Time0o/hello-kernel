@@ -38,8 +38,10 @@ void ins(uint16_t port, uint32_t dest, uint32_t count)
 {
   static_assert(detail::is_uint_le32_t<T>());
 
+  T *dest_ptr = reinterpret_cast<T *>(dest);
+
   asm volatile("rep ins%z2"
-               : "+D" (dest), "+c" (count), "=m" (dest)
+               : "+D" (dest_ptr), "+c" (count), "=m" (*dest_ptr)
                : "d" (port)
                : "memory");
 }
