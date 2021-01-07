@@ -44,9 +44,9 @@ define qemu_dbg_boot
                       -ex "set arch i386" \
                       -ex "target remote localhost:1234" \
                       -ex "set confirm off" \
-                      -ex "add-symbol-file $(2) $(BOOT_RELOC_ADDR)" \
+                      -ex "add-symbol-file $(2) $(3)" \
                       -ex "set confirm on" \
-                      -ex "break bootloader_start" \
+                      -ex "break kernel_start" \
                       -ex "continue" \
                       -ex "shell clear" \
                       -ex "layout src"' \; \
@@ -59,7 +59,7 @@ qemu:
 
 qemu_dbg:
 	@$(call qemu_check_disk)
-	$(call qemu_dbg_boot,$(DISK_IMG),$(BOOT_ELF))
+	$(call qemu_dbg_boot,$(DISK_IMG),$(KERN_ELF),$(KERN_LOAD_ADDR))
 
 # clean
 .PHONY: clean
