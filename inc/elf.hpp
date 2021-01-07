@@ -46,17 +46,16 @@ class Elf_file
   // we currently don't care about the section header table
 
 public:
-  Elf_file(uint32_t pa_dest, uint32_t da_src)
-  : _pa_dest(pa_dest),
-    _da_src(da_src)
+  Elf_file(uint32_t da_src)
+  : _da_src(da_src)
   {}
 
-  void load_header(uint32_t memsz = PAGE_SIZE)
+  void load_headers(uint32_t pa_dest)
   {
-    disk().read(_pa_dest, _da_src, memsz);
+    disk().read(pa_dest, _da_src, PAGE_SIZE);
 
-    _elf_hdr = reinterpret_cast<Elf_hdr const *>(_pa_dest);
-    _prog_hdr_tbl = reinterpret_cast<Prog_hdr const *>(_pa_dest + _elf_hdr->e_phoff);
+    _elf_hdr = reinterpret_cast<Elf_hdr const *>(pa_dest);
+    _prog_hdr_tbl = reinterpret_cast<Prog_hdr const *>(pa_dest + _elf_hdr->e_phoff);
   }
 
   bool valid() const
@@ -67,7 +66,7 @@ public:
     auto const *ph = _prog_hdr_tbl;
 
     for (uint32_t i = 0u; i < _elf_hdr->e_phnum; ++i) {
-      if (ph->p_offset + ph->p_memsz <= PAGE_SIZE)
+      if (ph->p_memsz == 0u)
         continue;
 
       disk().read(ph->p_pa, ph->p_offset + _da_src, ph->p_memsz);
@@ -78,15 +77,14 @@ public:
 
   [[noreturn]] void run() const
   {
-    elf_addr entry = _elf_hdr->e_entry;
+    void *entry = reinterpret_cast<void *>(_elf_hdr->e_entry);
 
-    reinterpret_cast<void(*)()>(entry)();
+    goto *entry;
 
     __builtin_unreachable();
   }
 
 private:
-  uint32_t _pa_dest;
   uint32_t _da_src;
 
   Elf_hdr const *_elf_hdr = nullptr;

@@ -4,9 +4,11 @@ extern "C" void bootloader_start();
 
 void bootloader_start()
 {
-  Elf_file kernel(KERN_LOAD_ADDR, BOOT_SECT_COUNT * DISK_SECT_SIZE);
+  uint32_t boot_size = BOOT_SECT_COUNT * DISK_SECT_SIZE;
 
-  kernel.load_header();
+  Elf_file kernel(boot_size);
+
+  kernel.load_headers(BOOT_RELOC_ADDR + boot_size);
 
   if (kernel.valid()) {
     kernel.load();
