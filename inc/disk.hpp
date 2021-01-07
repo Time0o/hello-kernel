@@ -73,15 +73,15 @@ private:
                                uint32_t sect_offs,
                                uint8_t sect_count)
   {
-    x86::out<uint8_t>(ATA_PORT_DRIVE_HEAD, ATA_PIO28_MASTER | ((sect_offs >> 24) & 0x0F));
+    x86::outb(ATA_PORT_DRIVE_HEAD, ATA_PIO28_MASTER | ((sect_offs >> 24) & 0x0F));
 
-    x86::out(ATA_PORT_SECT_COUNT, sect_count);
+    x86::outb(ATA_PORT_SECT_COUNT, sect_count);
 
-    x86::out<uint8_t>(ATA_PORT_LBA_LO, sect_offs & 0xFF);
-    x86::out<uint8_t>(ATA_PORT_LBA_MID, (sect_offs >> 8) & 0xFF);
-    x86::out<uint8_t>(ATA_PORT_LBA_HI, (sect_offs >> 16) & 0xFF);
+    x86::outb(ATA_PORT_LBA_LO, sect_offs & 0xFF);
+    x86::outb(ATA_PORT_LBA_MID, (sect_offs >> 8) & 0xFF);
+    x86::outb(ATA_PORT_LBA_HI, (sect_offs >> 16) & 0xFF);
 
-    x86::out(ATA_PORT_CMD, ATA_CMD_READ_PIO28);
+    x86::outb(ATA_PORT_CMD, ATA_CMD_READ_PIO28);
 
     for (uint8_t sec = 0u; sec < sect_count; ++sec) {
       poll_status(ATA_STATUS_DRQ);
@@ -93,7 +93,7 @@ private:
 
   static void poll_status(uint8_t status)
   {
-    while (!(x86::in<uint8_t>(ATA_PORT_STATUS) & status))
+    while (!(x86::inb(ATA_PORT_STATUS) & status))
       ;
   }
 

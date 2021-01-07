@@ -33,6 +33,12 @@ T in(uint16_t port)
   return data;
 }
 
+inline uint8_t inb(uint16_t port)
+{ return in<uint8_t>(port); }
+
+inline uint16_t inw(uint16_t port)
+{ return in<uint16_t>(port); }
+
 template<typename T>
 void ins(uint16_t port, uint32_t dest, uint32_t count)
 {
@@ -46,6 +52,12 @@ void ins(uint16_t port, uint32_t dest, uint32_t count)
                : "memory");
 }
 
+inline void insb(uint16_t port, uint32_t dest, uint32_t count)
+{ ins<uint8_t>(port, dest, count); }
+
+inline void insw(uint16_t port, uint32_t dest, uint32_t count)
+{ ins<uint16_t>(port, dest, count); }
+
 template<typename T>
 void out(uint16_t port, T data)
 {
@@ -54,5 +66,11 @@ void out(uint16_t port, T data)
   asm ("out %0,%1"
        : : "a" (data), "d" (port));
 }
+
+inline void outb(uint16_t port, uint8_t data)
+{ out(port, data); }
+
+inline void outw(uint16_t port, uint16_t data)
+{ out(port, data); }
 
 } // namespace x86
