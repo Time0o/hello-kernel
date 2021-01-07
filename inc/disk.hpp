@@ -7,8 +7,8 @@
 struct Disk_driver
 {
   virtual void read_sects(uint32_t pa_dest,
-                          uint32_t da_src,
-                          uint8_t sect_count) const = 0;
+                          uint64_t da_src,
+                          uint16_t sect_count) const = 0;
 };
 
 class Disk_iface
@@ -37,7 +37,6 @@ private:
 
 class Disk_driver_ata : public Disk_driver
 {
-  // ports
   enum : uint32_t
   {
     ATA_PORT_DATA = 0x1F0,
@@ -50,54 +49,55 @@ class Disk_driver_ata : public Disk_driver
     ATA_PORT_CMD = 0x1F7
   };
 
-  // commands
   enum : uint8_t
-  { ATA_CMD_READ_PIO28 = 0x20 };
-
-  // status
-  enum : uint8_t
-  { ATA_STATUS_DRQ = 0x08 };
-
-  // misc
-  enum : uint8_t
-  { ATA_PIO28_MASTER = 0xE0 };
+  {
+    ATA_PIO48_MASTER = 0x40,
+    ATA_PIO48_CMD_READ = 0x24,
+    ATA_STATUS_BSY = 0x80,
+    ATA_STATUS_DRQ = 0x08
+  };
 
 public:
   void read_sects(uint32_t pa_dest,
-                  uint32_t da_src,
-                  uint8_t sect_count) const override
-  { read_sects_pio28(pa_dest, da_src, sect_count); }
+                  uint64_t sect_offs,
+                  uint16_t sect_count) const override
+  { read_sects_pio48(pa_dest, sect_offs, sect_count); }
 
 private:
-  static void read_sects_pio28(uint32_t pa_dest,
-                               uint32_t sect_offs,
-                               uint8_t sect_count)
+  static void read_sects_pio48(uint32_t pa_dest,
+                               uint64_t sect_offs,
+                               uint16_t sect_count)
   {
-    x86::outb(ATA_PORT_DRIVE_HEAD, ATA_PIO28_MASTER | ((sect_offs >> 24) & 0x0F));
+    x86::outb(ATA_PORT_DRIVE_HEAD, ATA_PIO48_MASTER);
 
-    x86::outb(ATA_PORT_SECT_COUNT, sect_count);
-
+    x86::outb(ATA_PORT_SECT_COUNT, (sect_count >> 8) & 0xFF);
+    x86::outb(ATA_PORT_LBA_LO, (sect_offs >> 24) & 0xFF);
+    x86::outb(ATA_PORT_LBA_MID, (sect_offs >> 32) & 0xFF);
+    x86::outb(ATA_PORT_LBA_HI, (sect_offs >> 40) & 0xFF);
+    x86::outb(ATA_PORT_SECT_COUNT, sect_count & 0xFF);
     x86::outb(ATA_PORT_LBA_LO, sect_offs & 0xFF);
     x86::outb(ATA_PORT_LBA_MID, (sect_offs >> 8) & 0xFF);
     x86::outb(ATA_PORT_LBA_HI, (sect_offs >> 16) & 0xFF);
 
-    x86::outb(ATA_PORT_CMD, ATA_CMD_READ_PIO28);
+    x86::outb(ATA_PORT_CMD, ATA_PIO48_CMD_READ);
 
     for (uint8_t sec = 0u; sec < sect_count; ++sec) {
-      poll_status(ATA_STATUS_DRQ);
+      poll();
 
-      x86::ins<uint32_t>(ATA_PORT_DATA, pa_dest, DISK_SECT_SIZE / 4);
-      pa_dest += DISK_SECT_SIZE / 4;
+      x86::insw(ATA_PORT_DATA, pa_dest, DISK_SECT_SIZE / 2);
+
+      pa_dest += DISK_SECT_SIZE;
     }
   }
 
-  static void poll_status(uint8_t status)
+  static void poll()
   {
-    while (!(x86::inb(ATA_PORT_STATUS) & status))
-      ;
+    for (;;) {
+      uint8_t status = x86::in<uint8_t>(ATA_PORT_STATUS);
+      if (!(status & ATA_STATUS_BSY) && (status & ATA_STATUS_DRQ))
+        break;
+    }
   }
-
-  // XXX *_pio48
 };
 
 // XXX more drivers
