@@ -17,5 +17,5 @@ KERN_ELF := $(ELF_DIR)/kern.elf
 
 # images
 BOOT_IMG := $(IMG_DIR)/boot.img
-KERN_IMG := $(IMG_DIR)/kern.img
+KERN_IMG := $(ELF_DIR)/kern.elf
 DISK_IMG := $(IMG_DIR)/disk.img
