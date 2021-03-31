@@ -73,4 +73,7 @@ inline void outb(uint16_t port, uint8_t data)
 inline void outw(uint16_t port, uint16_t data)
 { out(port, data); }
 
+inline void halt()
+{ asm ("hlt"); }
+
 } // namespace x86
