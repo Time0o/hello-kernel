@@ -1,5 +1,6 @@
 extern "C" void bootloader_start();
 
+#include "asm.hpp"
 #include "elf.hpp"
 
 void bootloader_start()
@@ -15,6 +16,5 @@ void bootloader_start()
     kernel.run();
   }
 
-  for (;;)
-    ; // TODO: print error, halt
+  x86::halt();
 }
