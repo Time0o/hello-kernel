@@ -3,6 +3,7 @@ extern "C" void kernel_start();
 #include <cstdint>
 
 #include "asm.hpp"
+#include "cons.hpp"
 
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
@@ -16,9 +17,16 @@ void zero_bss()
     *bss_addr = 0x00;
 }
 
+void print_greeting()
+{
+  puts("\nhello from the kernel\n");
+}
+
 void kernel_start()
 {
   zero_bss();
+
+  print_greeting();
 
   x86::halt();
 }
