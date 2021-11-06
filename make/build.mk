@@ -18,7 +18,7 @@ CXX := g++
 
 CXXFLAGS = $(GCCFLAGS_COMMON)
 CXXFLAGS += $(CPPFLAGS)
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17
 CXXFLAGS += -ffreestanding -fno-rtti -fno-exceptions -fno-threadsafe-statics -fno-stack-protector
 
 # linker

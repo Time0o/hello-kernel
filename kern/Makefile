@@ -8,8 +8,8 @@ include $(MAKE_DIR)/disk.mk
 # files
 KERN_BASENAME := kern
 
-KERN_ENTRY_ASM     := $(ASM_DIR)/$(KERN_BASENAME)_entry.S
-KERN_ENTRY_ASM_OBJ := $(OUT_DIR)/$(KERN_BASENAME)_entry.o
+KERN_ENTRY_ASM     := $(ASM_DIR)/kentry.S
+KERN_ENTRY_ASM_OBJ := $(OUT_DIR)/kentry.o
 KERN_OBJS          := $(KERN_ENTRY_ASM_OBJ) \
                       $(patsubst $(CXX_DIR)/%.cpp,$(OUT_DIR)/%.o,$(wildcard $(CXX_DIR)/*.cpp))
 KERN_LNK           := $(LNK_DIR)/$(KERN_BASENAME).ld

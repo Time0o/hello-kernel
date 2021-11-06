@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include "config.hpp"
 #include "disk.hpp"
+#include "mem.hpp"
 
 class Elf_file
 {
