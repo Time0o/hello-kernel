@@ -4,6 +4,8 @@
 using PT = PageTable;
 using PD = PageDirectory;
 
+namespace {
+
 // Initial page table only used during kernel startup.
 __attribute__((section(".pt_kentry")))
 constexpr PT pt_kentry {
@@ -20,9 +22,12 @@ constexpr PD pd_kentry {
   // instruction pointer is updated to a virtual kernel address.
   { 0, PD::Entry{KERN_PT_KENTRY_LOAD_ADDR, PD::W, PD::P} },
 
-  // Map 4MB of the virtual address space starting at the link address of the
-  // kernel to the same bottom 4MB of physical memory. We will later increase
-  // the number of pages available to the kernel by creating mappings for the
-  // entire virtual kernel address range 0xF0000000-0xFFFFFFFF.
-  { PD::idx(KERN_LINK_ADDR), PD::Entry{KERN_PT_KENTRY_LOAD_ADDR, PD::W, PD::P} }
+  // Map 4MB of the virtual address space starting just below the link address
+  // of the kernel (to facilitate 4MB alignment) to the same bottom 4MB of
+  // physical memory. We will later increase the number of pages available to
+  // the kernel by creating mappings for the entire virtual kernel address
+  // range 0xF0000000-0xFFFFFFFF.
+  { PD::idx(KERN_MEM_LOAD_ADDR), PD::Entry{KERN_PT_KENTRY_LOAD_ADDR, PD::W, PD::P} }
 };
+
+} // end namespace
